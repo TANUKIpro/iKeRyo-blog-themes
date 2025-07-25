@@ -10,13 +10,13 @@ get_header(); ?>
         
         <!-- ショップ紹介 -->
         <div class="shop-intro">
-            <p>iKeRyoのオリジナルグッズや推薦商品をご紹介します。</p>
+            <p>iKeRyoの創作物や推薦商品をご紹介します。</p>
         </div>
         
         <!-- 商品カテゴリ -->
         <div class="shop-categories">
             <div class="shop-category">
-                <h2>オリジナルグッズ</h2>
+                <h2>創作物</h2>
                 <div class="product-grid">
                     <div class="product-placeholder">
                         <p>Coming Soon...</p>
