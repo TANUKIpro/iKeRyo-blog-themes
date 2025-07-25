@@ -1,23 +1,25 @@
 <footer class="footer">
     <div class="container">
-        <a href="<?php echo home_url(); ?>" class="back-to-home">← ホームに戻る</a>
-        <p>&copy; <?php echo date('Y'); ?> iKeRyo Blog. All rights reserved.</p>
+        <?php if (!is_front_page()) : ?>
+            <a href="<?php echo home_url(); ?>" class="back-to-home">← ホームに戻る</a>
+        <?php endif; ?>
+        <p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
     </div>
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 目次生成
-    generateTOC();
+    // 目次生成（記事ページのみ）
+    if (document.querySelector('.toc-list')) {
+        generateTOC();
+        setupTOCScrollSpy();
+        setupTOCPositioning();
+    }
     
-    // URLカード変換
-    convertLinksToCards();
-    
-    // スクロール時の目次ハイライト
-    setupTOCScrollSpy();
-    
-    // 目次位置制御
-    setupTOCPositioning();
+    // URLカード変換（記事ページのみ）
+    if (document.querySelector('.post-body')) {
+        convertLinksToCards();
+    }
 });
 
 function generateTOC() {
@@ -130,11 +132,13 @@ function setupTOCPositioning() {
 
 function convertLinksToCards() {
     const postBody = document.querySelector('.post-body');
+    if (!postBody) return;
+    
     const links = postBody.querySelectorAll('a[href^="http"]');
     
     links.forEach(function(link) {
         const parent = link.parentElement;
-        if (parent.tagName === 'P' && parent.textContent.trim() === link.textContent.trim()) {
+        if (parent && parent.tagName === 'P' && parent.textContent.trim() === link.textContent.trim()) {
             const url = link.href;
             const title = link.textContent.trim();
             
@@ -156,9 +160,13 @@ function convertLinksToCards() {
             };
             
             // Faviconを試行
-            const domain = new URL(url).hostname;
-            img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-            cardImage.appendChild(img);
+            try {
+                const domain = new URL(url).hostname;
+                img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                cardImage.appendChild(img);
+            } catch (e) {
+                cardImage.innerHTML = '<div class="placeholder">🔗</div>';
+            }
             
             // コンテンツ部分
             const cardContent = document.createElement('div');

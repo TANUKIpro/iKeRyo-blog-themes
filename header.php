@@ -10,6 +10,10 @@
             <?php the_title(); ?> - <?php bloginfo('name'); ?>
         <?php endif; ?>
     </title>
+    
+    <!-- Prism.js for code highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    
     <style>
         * {
             margin: 0;
@@ -25,8 +29,7 @@
         }
 
         .container {
-            max-width: none; /* 固定値を削除 */
-            width: 90%; /* 基本は90%幅 */
+            width: 90%;
             margin: 0 auto;
             padding: 0 20px;
         }
@@ -34,19 +37,19 @@
         /* 画面サイズ別の幅調整 */
         @media (min-width: 1400px) {
             .container {
-                width: 85%; /* 大画面では少し狭めに */
+                width: 85%;
             }
         }
 
         @media (min-width: 1200px) and (max-width: 1399px) {
             .container {
-                width: 88%; /* 中大画面 */
+                width: 88%;
             }
         }
 
         @media (min-width: 768px) and (max-width: 1199px) {
             .container {
-                width: 95%; /* タブレット・小さめのPC */
+                width: 95%;
             }
         }
 
@@ -83,54 +86,42 @@
             min-width: 0;
         }
 
-        /* 目次 */
+        /* 目次サイドバー */
         .toc-sidebar {
-            width: 200px;
+            width: 300px;
             flex-shrink: 0;
         }
 
         /* 目次コンテナ */
-        body .toc-container,
-        .toc-sidebar .toc-container {
-            position: static !important;
-            top: auto !important;
-            background: rgba(255, 255, 255, 0.98) !important;
-            border: 1px solid #e5e7eb !important; /* デバッグ用青枠を通常に戻す */
-            border-radius: 12px !important;
-            padding: 24px !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-            max-height: 100% !important;
-            overflow-y: auto !important;
-            z-index: auto !important;
-            backdrop-filter: blur(10px) !important;
+        .toc-container {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
         }
 
         .toc-title {
-            font-size: 1rem !important;
-            font-weight: 700 !important;
-            color: #1f2937 !important;
-            margin-bottom: 16px !important;
-            padding-bottom: 10px !important;
-            border-bottom: 2px solid #e5e7eb !important;
-            text-align: center !important;
-        }
-
-        .toc-title {
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: #1f2937;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #f3f4f6;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            text-align: center;
         }
 
-        /* 目次の階層構造スタイル */
+        /* 目次の階層構造スタイル（改善版） */
         .toc-list {
             list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
         .toc-item {
             margin-bottom: 4px;
+            position: relative;
         }
 
         .toc-link {
@@ -143,6 +134,9 @@
             transition: all 0.2s ease;
             border-radius: 4px;
             border-left: 3px solid transparent;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .toc-link:hover {
@@ -157,7 +151,13 @@
             font-weight: 600;
         }
 
-        /* 階層レベル別スタイル */
+        /* 階層レベル別スタイル（改善版） */
+        .toc-level-1 { 
+            padding-left: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+        
         .toc-level-2 { 
             padding-left: 0;
             font-size: 0.9rem;
@@ -165,47 +165,44 @@
         }
         
         .toc-level-3 { 
-            padding-left: 16px;
+            padding-left: 20px;
             font-size: 0.85rem;
             font-weight: 500;
-            position: relative;
         }
         
         .toc-level-3::before {
-            content: "└";
+            content: "└ ";
             position: absolute;
             left: 8px;
             color: #d1d5db;
         }
         
         .toc-level-4 { 
-            padding-left: 32px;
+            padding-left: 40px;
             font-size: 0.8rem;
             font-weight: 400;
-            position: relative;
         }
         
         .toc-level-4::before {
-            content: "└";
+            content: "└ ";
             position: absolute;
-            left: 24px;
+            left: 28px;
             color: #d1d5db;
         }
 
         .toc-level-5,
         .toc-level-6 { 
-            padding-left: 48px;
+            padding-left: 60px;
             font-size: 0.75rem;
             font-weight: 400;
             color: #9ca3af;
-            position: relative;
         }
         
         .toc-level-5::before,
         .toc-level-6::before {
-            content: "└";
+            content: "└ ";
             position: absolute;
-            left: 40px;
+            left: 48px;
             color: #d1d5db;
         }
 
@@ -217,18 +214,9 @@
             padding: 50px;
             margin-bottom: 40px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            width: 100% !important; /* 強制的に親要素の幅を使用 */
-            min-width: 800px; /* 最小幅を保証 */
-            position: relative; /* 位置を確実に */
-        }
-
-        /* 記事本文の最適な読みやすさを保つ */
-        .post-body {
-            max-width: none !important; /* 制限を一時的に解除 */
-            width: 100%; /* 親要素の幅を使用 */
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #374151;
+            width: 100%;
+            min-width: 800px;
+            position: relative;
         }
 
         /* 記事メタ情報 */
@@ -281,8 +269,7 @@
 
         /* 記事本文 */
         .post-body {
-            max-width: none !important; /* 制限を解除 */
-            width: 100%; /* 親要素の幅を使用 */
+            width: 100%;
             font-size: 1.1rem;
             line-height: 1.8;
             color: #374151;
@@ -303,7 +290,7 @@
             margin-top: 2rem;
             margin-bottom: 1rem;
             line-height: 1.4;
-            scroll-margin-top: 100px; /* スクロール時のオフセット */
+            scroll-margin-top: 100px;
         }
 
         .post-body h1 { font-size: 2rem; }
@@ -314,7 +301,7 @@
         .post-body ul,
         .post-body ol {
             margin-bottom: 1.5rem;
-            padding-left: 1.2rem; /* リストの幅を狭める */
+            padding-left: 1.2rem;
         }
 
         .post-body li {
@@ -329,35 +316,37 @@
             font-style: italic;
         }
 
-        .post-body code {
+        /* インラインコード */
+        .post-body code:not([class*="language-"]) {
             background: #f1f5f9;
             color: #e11d48;
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-size: 0.9rem;
-            font-family: 'Courier New', monospace;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         }
 
+        /* コードブロック */
         .post-body pre {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 1.5rem;
-            border-radius: 8px;
-            overflow-x: auto;
             margin: 1.5rem 0;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        .post-body pre code {
-            background: none;
-            color: inherit;
-            padding: 0;
+        .post-body pre[class*="language-"] {
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
+        /* 画像の中央寄せと最適化 */
         .post-body img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
-            margin: 1.5rem 0;
+            margin: 1.5rem auto;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         /* 画像キャプション */
@@ -373,11 +362,58 @@
 
         .post-body figure {
             margin: 1.5rem 0;
+            text-align: center;
         }
 
         .post-body .wp-caption {
             max-width: 100%;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .post-body .wp-caption img {
+            margin: 0 auto;
+        }
+
+        /* テーブルのスタイル改善 */
+        .post-body table {
+            width: 100%;
             margin: 1.5rem 0;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .post-body table thead {
+            background: #f8fafc;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .post-body table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.9rem;
+        }
+
+        .post-body table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.95rem;
+        }
+
+        .post-body table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .post-body table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .post-body table tbody tr:nth-child(even) {
+            background: #fcfcfc;
         }
 
         /* URLカード */
@@ -487,8 +523,7 @@
             display: flex;
             justify-content: space-between;
             gap: 20px;
-            max-width: none !important; /* 制限を解除 */
-            width: 100%; /* 親要素の幅を使用 */
+            width: 100%;
         }
 
         .nav-link {
@@ -545,121 +580,43 @@
             background: #2563eb;
         }
 
-        /* 大画面での目次固定（追加保証） */
+        /* 大画面での目次固定 */
         @media (min-width: 1401px) {
-            body .toc-sidebar:not(.toc-above-content),
-            .container .toc-sidebar:not(.toc-above-content) {
-                position: fixed !important;
-                top: 100px !important;
-                width: 300px !important;
-                z-index: 99999 !important;
-                /* right は JavaScript で動的に設定 */
+            .toc-sidebar:not(.toc-above-content) {
+                position: fixed;
+                top: 100px;
+                width: 300px;
+                z-index: 99999;
             }
         }
 
-        /* 目次が記事上部に配置される場合の追加スタイル */
+        /* 目次が記事上部に配置される場合 */
         .toc-sidebar.toc-above-content .toc-container {
-            border: 2px solid #fbbf24 !important; /* 上部配置時は黄色枠 */
-            background: #fffbeb !important; /* 薄い黄色背景 */
+            border: 2px solid #fbbf24;
+            background: #fffbeb;
         }
 
-        /* レスポンシブ - 1400px以下は完全に通常配置 */
+        /* レスポンシブ - 1400px以下 */
         @media (max-width: 1400px) {
             .main-layout {
-                display: block !important; /* flexを完全解除 */
-                max-width: 95% !important;
-                margin: 0 auto !important;
-                padding: 0 20px !important;
+                display: block;
             }
 
-            /* 目次を完全に通常配置にリセット */
-            body .toc-sidebar,
-            .container .toc-sidebar,
-            .main-layout .toc-sidebar,
-            .toc-sidebar.toc-above-content {
-                position: static !important; /* 固定を完全解除 */
-                top: auto !important;
-                right: auto !important;
-                left: auto !important;
-                width: 100% !important; /* 全幅に */
-                max-width: 100% !important;
-                height: auto !important;
-                max-height: none !important;
-                margin: 0 0 30px 0 !important; /* 下マージンのみ */
-                padding: 0 !important;
-                z-index: auto !important;
-                transform: none !important;
-                display: block !important;
-                float: none !important;
-                overflow: visible !important;
+            .toc-sidebar {
+                position: static;
+                width: 100%;
+                margin-bottom: 30px;
             }
 
-            /* 目次コンテナのリセット */
-            body .toc-container,
-            .toc-sidebar .toc-container,
-            .toc-sidebar.toc-above-content .toc-container {
-                position: static !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important;
-                max-height: 300px !important; /* 最大高さを制限 */
-                margin: 0 !important;
-                padding: 20px !important;
-                background: #f8fafc !important; /* 薄いグレー背景 */
-                border: 1px solid #e5e7eb !important;
-                border-radius: 8px !important;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
-                overflow-y: auto !important; /* スクロール可能 */
-                backdrop-filter: none !important;
-            }
-
-            /* コンテンツエリアのリセット */
-            .content-area {
-                width: 100% !important;
-                max-width: none !important;
-                min-width: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
+            .toc-container {
+                max-height: 300px;
+                overflow-y: auto;
+                background: #f8fafc;
             }
 
             .post-content {
-                width: 100% !important;
-                min-width: auto !important;
-                margin: 0 0 40px 0 !important;
+                min-width: auto;
             }
-
-            .post-body {
-                max-width: none !important;
-                width: 100% !important;
-            }
-
-            .post-navigation {
-                max-width: none !important;
-                width: 100% !important;
-            }
-
-            /* 目次タイトルを小画面用に調整 */
-            .toc-title {
-                font-size: 0.9rem !important;
-                text-align: left !important;
-                padding-bottom: 8px !important;
-                margin-bottom: 12px !important;
-            }
-
-            /* 目次リストを小画面用に調整 */
-            .toc-list {
-                max-height: 200px !important;
-                overflow-y: auto !important;
-            }
-
-            .toc-link {
-                font-size: 0.8rem !important;
-                padding: 4px 6px !important;
-            }
-
-            .toc-level-3 { padding-left: 12px !important; }
-            .toc-level-4 { padding-left: 24px !important; }
-            .toc-level-5, .toc-level-6 { padding-left: 36px !important; }
         }
 
         @media (max-width: 768px) {
@@ -681,12 +638,10 @@
 
             .post-body {
                 font-size: 1rem;
-                max-width: none; /* モバイルでは幅制限なし */
             }
 
             .post-navigation {
                 flex-direction: column;
-                max-width: none; /* モバイルでは幅制限なし */
             }
 
             .nav-next {
@@ -701,47 +656,67 @@
             .url-card-content {
                 text-align: left;
             }
+
+            /* テーブルのレスポンシブ対応 */
+            .post-body table {
+                font-size: 0.85rem;
+            }
+
+            .post-body table th,
+            .post-body table td {
+                padding: 8px 12px;
+            }
         }
 
         /* 大画面での最適化 */
         @media (min-width: 1600px) {
             .main-layout {
-                max-width: 2200px; /* レイアウト全体の最大幅 */
+                max-width: 2200px;
             }
         }
 
         @media (min-width: 1920px) {
             .main-layout {
-                max-width: 2400px; /* フルHD以上での最適化 */
+                max-width: 2400px;
             }
 
             .toc-sidebar {
-                width: 320px; /* 目次を少し広く */
+                width: 320px;
             }
         }
 
-        /* 2K画面以上の超高解像度対応 */
         @media (min-width: 2000px) {
             .main-layout {
-                max-width: 2600px; /* 2K画面での最適化 */
+                max-width: 2600px;
             }
 
             .post-content {
-                padding: 60px; /* パディング増加 */
+                padding: 60px;
             }
 
             .toc-sidebar {
-                width: 350px; /* 目次をさらに広く */
+                width: 350px;
             }
         }
 
-        /* 4K画面以上の対応 */
         @media (min-width: 2560px) {
             .main-layout {
-                max-width: 3000px; /* 4K画面での最適化 */
+                max-width: 3000px;
             }
         }
     </style>
+    
+    <!-- Prism.js for code highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>

@@ -6,31 +6,10 @@ get_header(); ?>
 
 <style>
 /* トップページ専用スタイル */
-.container {
+.front-page-container {
     max-width: 900px;
     margin: 0 auto;
     padding: 0 20px;
-}
-
-/* ヘッダー */
-.header {
-    background: white;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 40px 0;
-    margin-bottom: 40px;
-}
-
-.site-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 8px;
-}
-
-.site-description {
-    font-size: 1.1rem;
-    color: #6b7280;
-    font-weight: 400;
 }
 
 /* メインコンテンツ */
@@ -77,7 +56,8 @@ get_header(); ?>
 .post-meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 8px;
     font-size: 0.875rem;
     color: #6b7280;
@@ -94,6 +74,12 @@ get_header(); ?>
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 600;
+}
+
+.post-categories {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .post-title {
@@ -263,14 +249,14 @@ get_header(); ?>
         gap: 40px;
     }
 
-    .site-title {
-        font-size: 2rem;
-    }
-
     .post-meta {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
+    }
+
+    .post-categories {
+        width: 100%;
     }
 
     .profile-links {
@@ -280,16 +266,8 @@ get_header(); ?>
 }
 </style>
 
-<!-- ヘッダー -->
-<header class="header">
-    <div class="container">
-        <h1 class="site-title">iKeRyo Blog</h1>
-        <p class="site-description">有閑人間の技術ノート</p>
-    </div>
-</header>
-
 <!-- メインコンテンツ -->
-<div class="container">
+<div class="front-page-container">
     <div class="main-content">
         <!-- 最新記事 -->
         <main class="posts-section">
@@ -315,12 +293,17 @@ get_header(); ?>
                             <?php if ($is_draft) : ?>
                                 <span class="post-category" style="background: #fef3c7; color: #92400e;">下書き</span>
                             <?php endif; ?>
+                            
+                            <!-- すべてのカテゴリーを表示 -->
                             <?php
                             $categories = get_the_category();
                             if (!empty($categories)) :
-                                $primary_category = $categories[0];
                             ?>
-                                <span class="post-category"><?php echo esc_html($primary_category->name); ?></span>
+                                <div class="post-categories">
+                                    <?php foreach ($categories as $cat) : ?>
+                                        <span class="post-category"><?php echo esc_html($cat->name); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <h3 class="post-title">
@@ -369,7 +352,6 @@ get_header(); ?>
                 
                 <div class="profile-avatar-container">
                     <?php
-                    // 方法1: 直接Gravatarアバターを表示
                     echo get_avatar(
                         $user_email, 
                         80, 
@@ -377,12 +359,6 @@ get_header(); ?>
                         esc_attr($display_name), 
                         array('class' => 'profile-avatar-gravatar')
                     );
-                    
-                    // 方法2: GravatarのURLを取得して表示したい場合（コメントアウト）
-                    /*
-                    $avatar_url = get_avatar_url($user_email, array('size' => 80, 'default' => 'mm'));
-                    echo '<img src="' . esc_url($avatar_url) . '" alt="' . esc_attr($display_name) . '" class="profile-avatar-gravatar">';
-                    */
                     ?>
                 </div>
                 
@@ -394,9 +370,8 @@ get_header(); ?>
                     ?>
                 </p>
                 <div class="profile-links">
-                    <a href="<?php echo home_url('/contact'); ?>" class="profile-link">お問い合わせ</a>
-                    <a href="#" class="profile-link">GitHub</a>
-                    <a href="#" class="profile-link">Twitter</a>
+                    <a href="https://github.com/TANUKIpro" class="profile-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="https://x.com/Petit_Etang" class="profile-link" target="_blank" rel="noopener noreferrer">Twitter</a>
                 </div>
             </div>
 
@@ -405,7 +380,7 @@ get_header(); ?>
                 <h3>カテゴリー</h3>
                 <ul class="category-list">
                     <?php
-                    // すべてのカテゴリーを投稿数順で取得（WordPress 6.8.2対応）
+                    // すべてのカテゴリーを投稿数順で取得
                     $categories = get_categories(array(
                         'orderby' => 'count',
                         'order' => 'DESC',
@@ -438,7 +413,7 @@ get_header(); ?>
                 <h3>タグ</h3>
                 <div class="tag-cloud">
                     <?php
-                    // すべてのタグを使用回数順で取得（WordPress 6.8.2対応）
+                    // すべてのタグを使用回数順で取得
                     $tags = get_tags(array(
                         'orderby' => 'count',
                         'order' => 'DESC',
@@ -462,11 +437,6 @@ get_header(); ?>
             </div>
         </aside>
     </div>
-
-    <!-- フッター -->
-    <footer class="footer">
-        <p>&copy; <?php echo date('Y'); ?> iKeRyo Blog. All rights reserved.</p>
-    </footer>
 </div>
 
 <?php get_footer(); ?>
