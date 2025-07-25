@@ -18,10 +18,22 @@ add_action('after_setup_theme', 'toppage_theme_setup');
 
 function toppage_scripts() {
     // メインスタイルシートを読み込み
-    wp_enqueue_style('toppage-style', get_stylesheet_uri(), array(), '1.2');
+    wp_enqueue_style('toppage-style', get_stylesheet_uri(), array(), '1.4');
+    
+    // タブメニューのスタイルを読み込み
+    wp_enqueue_style('tab-menu-style', get_template_directory_uri() . '/tab-menu.css', array(), '1.1');
+    
+    // Prism.js for code highlighting
+    wp_enqueue_style('prism-css', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css', array(), '1.29.0');
     
     // jQueryを読み込み（WordPressに含まれているもの）
     wp_enqueue_script('jquery');
+    
+    // Prism.js scripts
+    if (is_single()) {
+        wp_enqueue_script('prism-core', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js', array(), '1.29.0', true);
+        wp_enqueue_script('prism-autoloader', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js', array('prism-core'), '1.29.0', true);
+    }
 }
 add_action('wp_enqueue_scripts', 'toppage_scripts');
 

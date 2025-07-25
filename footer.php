@@ -71,125 +71,26 @@ function setupTOCPositioning() {
     
     if (!tocSidebar || !mainLayout) return;
     
-    function updateTOCPosition() {
-        // 画面幅が1400px以下の場合は位置制御を完全に無効化
-        if (window.innerWidth <= 1400) {
-            tocSidebar.classList.remove('toc-above-content');
-            tocSidebar.style.position = '';
-            tocSidebar.style.top = '';
-            tocSidebar.style.right = '';
-            tocSidebar.style.left = '';
-            tocSidebar.style.width = '';
-            tocSidebar.style.height = '';
-            tocSidebar.style.maxHeight = '';
-            tocSidebar.style.zIndex = '';
-            tocSidebar.style.transform = '';
-            return;
-        }
+    // 画面幅をチェック
+    function checkScreenWidth() {
+        const screenWidth = window.innerWidth;
         
-        const mainLayoutRect = mainLayout.getBoundingClientRect();
-        const tocWidth = 300; // 目次の幅
-        const margin = 40; // 記事からの距離
-        
-        // 記事ブロックの右端から40px右の位置
-        const rightPosition = window.innerWidth - (mainLayoutRect.right + margin + tocWidth);
-        
-        // 画面端を超えるかチェック
-        if (rightPosition < 20) {
-            // 画面端を超える場合：記事上部に配置
+        if (screenWidth <= 1400) {
+            // 狭い画面：記事の上部に配置
             tocSidebar.classList.add('toc-above-content');
-            tocSidebar.style.right = 'auto';
-            tocSidebar.style.position = 'static';
+            mainLayout.prepend(tocSidebar);
         } else {
-            // 正常に表示できる場合：右側に固定
+            // 広い画面：記事の右側に保持
             tocSidebar.classList.remove('toc-above-content');
-            tocSidebar.style.position = 'fixed';
-            tocSidebar.style.right = rightPosition + 'px';
+            // 元の位置（右側）に戻す
+            if (tocSidebar !== mainLayout.lastElementChild) {
+                mainLayout.appendChild(tocSidebar);
+            }
         }
     }
     
-    // 初期実行
-    updateTOCPosition();
-    
-    // リサイズ時に再計算
-    window.addEventListener('resize', function() {
-        clearTimeout(window.tocResizeTimer);
-        window.tocResizeTimer = setTimeout(updateTOCPosition, 100);
-    });
-    
-    // スクロール時の再計算（1401px以上のみ）
-    let lastScrollTop = 0;
-    window.addEventListener('scroll', function() {
-        if (window.innerWidth <= 1400) return; // 小画面では無効
-        
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (Math.abs(scrollTop - lastScrollTop) > 10) {
-            updateTOCPosition();
-            lastScrollTop = scrollTop;
-        }
-    });
-}
-
-function convertLinksToCards() {
-    const postBody = document.querySelector('.post-body');
-    if (!postBody) return;
-    
-    const links = postBody.querySelectorAll('a[href^="http"]');
-    
-    links.forEach(function(link) {
-        const parent = link.parentElement;
-        if (parent && parent.tagName === 'P' && parent.textContent.trim() === link.textContent.trim()) {
-            const url = link.href;
-            const title = link.textContent.trim();
-            
-            // URLカードを作成
-            const urlCard = document.createElement('a');
-            urlCard.className = 'url-card';
-            urlCard.href = url;
-            urlCard.target = '_blank';
-            urlCard.rel = 'noopener noreferrer';
-            
-            // プレビュー画像部分
-            const cardImage = document.createElement('div');
-            cardImage.className = 'url-card-image';
-            
-            const img = document.createElement('img');
-            img.onerror = function() {
-                // 画像読み込み失敗時はプレースホルダー表示
-                cardImage.innerHTML = '<div class="placeholder">🔗</div>';
-            };
-            
-            // Faviconを試行
-            try {
-                const domain = new URL(url).hostname;
-                img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                cardImage.appendChild(img);
-            } catch (e) {
-                cardImage.innerHTML = '<div class="placeholder">🔗</div>';
-            }
-            
-            // コンテンツ部分
-            const cardContent = document.createElement('div');
-            cardContent.className = 'url-card-content';
-            
-            const cardTitle = document.createElement('div');
-            cardTitle.className = 'url-card-title';
-            cardTitle.textContent = title || 'リンク';
-            
-            const cardUrl = document.createElement('div');
-            cardUrl.className = 'url-card-url';
-            cardUrl.textContent = url;
-            
-            cardContent.appendChild(cardTitle);
-            cardContent.appendChild(cardUrl);
-            
-            urlCard.appendChild(cardImage);
-            urlCard.appendChild(cardContent);
-            
-            // 元のリンクを置き換え
-            parent.replaceWith(urlCard);
-        }
-    });
+    checkScreenWidth();
+    window.addEventListener('resize', checkScreenWidth);
 }
 
 function setupTOCScrollSpy() {
@@ -198,48 +99,77 @@ function setupTOCScrollSpy() {
     
     if (tocLinks.length === 0 || headings.length === 0) return;
     
-    let isScrolling = false;
-    
-    function updateActiveTOC() {
-        if (isScrolling) return;
-        
+    function highlightCurrentSection() {
         const scrollPosition = window.scrollY + 150;
-        let currentHeading = null;
         
+        let currentHeading = null;
         headings.forEach(function(heading) {
             if (heading.offsetTop <= scrollPosition) {
                 currentHeading = heading;
             }
         });
         
-        // すべてのtocリンクからactiveクラスを削除
         tocLinks.forEach(function(link) {
             link.classList.remove('active');
-        });
-        
-        // 現在のセクションのtocリンクにactiveクラスを追加
-        if (currentHeading) {
-            const activeLink = document.querySelector(`a[href="#${currentHeading.id}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
+            if (currentHeading && link.getAttribute('href') === '#' + currentHeading.id) {
+                link.classList.add('active');
             }
-        }
+        });
     }
     
-    // スクロールイベントをスロットル
-    let ticking = false;
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            requestAnimationFrame(function() {
-                updateActiveTOC();
-                ticking = false;
-            });
-            ticking = true;
+    window.addEventListener('scroll', highlightCurrentSection);
+    highlightCurrentSection();
+}
+
+function convertLinksToCards() {
+    const postBody = document.querySelector('.post-body');
+    if (!postBody) return;
+    
+    // 単独の段落内のリンクを探す
+    const paragraphs = postBody.querySelectorAll('p');
+    
+    paragraphs.forEach(function(p) {
+        // 段落内に単独のリンクのみがある場合
+        if (p.children.length === 1 && p.children[0].tagName === 'A') {
+            const link = p.children[0];
+            const url = link.href;
+            const text = link.textContent;
+            
+            // 外部リンクかどうか確認
+            if (url.startsWith('http')) {
+                const card = createURLCard(url, text);
+                p.replaceWith(card);
+            }
         }
     });
+}
+
+function createURLCard(url, text) {
+    const card = document.createElement('a');
+    card.href = url;
+    card.className = 'url-card';
+    card.target = '_blank';
+    card.rel = 'noopener noreferrer';
     
-    // 初期状態で実行
-    updateActiveTOC();
+    // URLからドメインを抽出
+    let domain;
+    try {
+        domain = new URL(url).hostname.replace('www.', '');
+    } catch (e) {
+        domain = url;
+    }
+    
+    card.innerHTML = `
+        <div class="url-card-image">
+            <span class="placeholder">🔗</span>
+        </div>
+        <div class="url-card-content">
+            <div class="url-card-title">${text}</div>
+            <div class="url-card-url">${domain}</div>
+        </div>
+    `;
+    
+    return card;
 }
 </script>
 

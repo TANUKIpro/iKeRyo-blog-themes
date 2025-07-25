@@ -1,7 +1,7 @@
 /*
 Theme Name: iKeRyo Top Page Theme
 Description: iKeRyo Blog用のカスタムトップページテーマ
-Version: 1.2
+Version: 1.4
 */
 
 * {
@@ -28,9 +28,10 @@ body {
 .header {
     background: white;
     border-bottom: 1px solid #e5e7eb;
-    padding: 20px 0;
+    padding: 24px 0 0;
     position: relative;
     z-index: 100;
+    margin-bottom: 60px;
 }
 
 .site-title {
@@ -52,7 +53,7 @@ body {
     color: #6b7280;
     font-size: 0.875rem;
     background: white;
-    margin-top: 40px;
+    margin-top: 60px;
 }
 
 .back-to-home {
@@ -99,5 +100,9 @@ a:hover {
     
     .site-title {
         font-size: 1.5rem;
+    }
+    
+    .header {
+        margin-bottom: 40px;
     }
 }

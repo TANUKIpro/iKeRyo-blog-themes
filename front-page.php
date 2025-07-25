@@ -9,7 +9,7 @@ get_header(); ?>
 .front-page-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 40px 20px 0;
 }
 
 /* メインコンテンツ */
@@ -18,6 +18,7 @@ get_header(); ?>
     grid-template-columns: 2fr 1fr;
     gap: 60px;
     margin-bottom: 60px;
+    margin-top: 20px;
 }
 
 /* 最新記事 */
@@ -182,8 +183,8 @@ get_header(); ?>
 }
 
 .profile-avatar-gravatar {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 3px solid #e5e7eb;
     transition: all 0.2s ease;
@@ -327,7 +328,7 @@ get_header(); ?>
                     </div>
                 <?php endif; ?>
             </div>
-            <a href="/blog" class="view-all-link">すべての記事を見る</a>
+            <a href="<?php echo get_permalink(get_option('page_for_posts')); ?>" class="view-all-link">すべての記事を見る</a>
         </main>
 
         <!-- サイドバー -->
@@ -354,15 +355,15 @@ get_header(); ?>
                     <?php
                     echo get_avatar(
                         $user_email, 
-                        80, 
+                        120, 
                         'mm', 
-                        esc_attr($display_name), 
+                        'Ryo', 
                         array('class' => 'profile-avatar-gravatar')
                     );
                     ?>
                 </div>
                 
-                <h3 class="profile-name"><?php echo esc_html($display_name); ?></h3>
+                <h3 class="profile-name">Ryo</h3>
                 <p class="profile-bio">
                     <?php
                     $bio = get_the_author_meta('description', $user_id);

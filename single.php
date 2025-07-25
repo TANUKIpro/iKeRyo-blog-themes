@@ -7,16 +7,6 @@ get_header(); ?>
 <div class="container">
     <!-- メインコンテンツ -->
     <div class="main-layout">
-        <!-- 目次サイドバー - 記事上部または右側に動的配置 -->
-        <aside class="toc-sidebar">
-            <div class="toc-container">
-                <div class="toc-title">📖 目次</div>
-                <ul class="toc-list">
-                    <!-- JavaScriptで動的生成 -->
-                </ul>
-            </div>
-        </aside>
-
         <div class="content-area">
             <?php if (have_posts()) : while (have_posts()) : the_post(); ?>
                 
@@ -97,6 +87,16 @@ get_header(); ?>
                 </div>
             </nav>
         </div>
+
+        <!-- 目次サイドバー - 右側に配置 -->
+        <aside class="toc-sidebar">
+            <div class="toc-container">
+                <div class="toc-title">📖 目次</div>
+                <ul class="toc-list">
+                    <!-- JavaScriptで動的生成 -->
+                </ul>
+            </div>
+        </aside>
     </div>
 </div>
 
