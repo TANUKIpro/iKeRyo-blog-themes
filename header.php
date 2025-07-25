@@ -365,7 +365,7 @@
     @media (min-width: 1401px) {
         .toc-sidebar {
             position: fixed;
-            top: 100px;
+            top: 100px; /* JSで上書きされます */
             right: calc((100vw - 1600px) / 2 + 20px);
             width: 300px;
             z-index: 99999;

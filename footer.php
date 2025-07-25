@@ -68,17 +68,20 @@ function generateTOC() {
 function setupTOCPositioning() {
     const tocSidebar = document.querySelector('.toc-sidebar');
     const mainLayout = document.querySelector('.main-layout');
-    
+    const header = document.querySelector('.header');
+
     if (!tocSidebar || !mainLayout) return;
-    
+
     // 画面幅をチェック
     function checkScreenWidth() {
         const screenWidth = window.innerWidth;
-        
+        const headerHeight = header ? header.offsetHeight : 0;
+
         if (screenWidth <= 1400) {
             // 狭い画面：記事の上部に配置
             tocSidebar.classList.add('toc-above-content');
             mainLayout.prepend(tocSidebar);
+            tocSidebar.style.top = '';
         } else {
             // 広い画面：記事の右側に保持
             tocSidebar.classList.remove('toc-above-content');
@@ -86,9 +89,10 @@ function setupTOCPositioning() {
             if (tocSidebar !== mainLayout.lastElementChild) {
                 mainLayout.appendChild(tocSidebar);
             }
+            tocSidebar.style.top = (headerHeight + 20) + 'px';
         }
     }
-    
+
     checkScreenWidth();
     window.addEventListener('resize', checkScreenWidth);
 }
