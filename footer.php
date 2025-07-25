@@ -134,10 +134,16 @@ function convertLinksToCards() {
             const link = p.children[0];
             const url = link.href;
             const text = link.textContent;
-            
-            // 外部リンクかどうか確認
+
             if (url.startsWith('http')) {
                 const card = createURLCard(url, text);
+                p.replaceWith(card);
+            }
+        } else if (p.children.length === 0) {
+            const text = p.textContent.trim();
+            const urlMatch = text.match(/^https?:\/\/\S+$/);
+            if (urlMatch) {
+                const card = createURLCard(urlMatch[0], urlMatch[0]);
                 p.replaceWith(card);
             }
         }
