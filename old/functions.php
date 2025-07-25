@@ -18,28 +18,22 @@ add_action('after_setup_theme', 'toppage_theme_setup');
 
 function toppage_scripts() {
     // メインスタイルシートを読み込み
-    wp_enqueue_style('toppage-style', get_stylesheet_uri(), array(), '1.35');
+    wp_enqueue_style('toppage-style', get_stylesheet_uri(), array(), '1.4');
     
     // タブメニューのスタイルを読み込み
     wp_enqueue_style('tab-menu-style', get_template_directory_uri() . '/tab-menu.css', array(), '1.1');
     
     // Prism.js for code highlighting
-    // wp_enqueue_style('prism-css', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css', array(), '1.29.0');
+    wp_enqueue_style('prism-css', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css', array(), '1.29.0');
     
     // jQueryを読み込み（WordPressに含まれているもの）
     wp_enqueue_script('jquery');
     
     // Prism.js scripts
-    // if (is_single()) {
-    //     wp_enqueue_script('prism-core', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js', array(), '1.29.0', true);
-    //     wp_enqueue_script('prism-autoloader', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js', array('prism-core'), '1.29.0', true);
-    // }
-    
-    // コードブロック専用スタイルシートを読み込み
-    wp_enqueue_style('code-blocks', get_template_directory_uri() . '/assets/css/code-blocks.css', array(), '1.0');
-
-    // コードブロック用のJavaScript（必要に応じて）
-    wp_enqueue_script('code-blocks', get_template_directory_uri() . '/assets/js/code-blocks.js', array('jquery'), '1.0', true);
+    if (is_single()) {
+        wp_enqueue_script('prism-core', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js', array(), '1.29.0', true);
+        wp_enqueue_script('prism-autoloader', 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js', array('prism-core'), '1.29.0', true);
+    }
 }
 add_action('wp_enqueue_scripts', 'toppage_scripts');
 
@@ -101,20 +95,4 @@ function toppage_login_logo_url_title() {
     return 'iKeRyo Blog';
 }
 add_filter('login_headertext', 'toppage_login_logo_url_title');
-
-// コードブロックのラッパーを保護（WordPress自動整形を防ぐ）
-function preserve_code_blocks($content) {
-    // code-block-wrapperクラスを持つ要素内でのWordPress自動整形を防ぐ
-    if (has_filter('the_content', 'wpautop')) {
-        $content = preg_replace_callback(
-            '/<div class="code-block-wrapper">(.*?)<\/div>/s',
-            function($matches) {
-                return str_replace(array('<p>', '</p>', '<br />'), '', $matches[0]);
-            },
-            $content
-        );
-    }
-    return $content;
-}
-add_filter('the_content', 'preserve_code_blocks', 9);
 ?>

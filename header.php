@@ -235,16 +235,6 @@
         font-style: italic;
     }
 
-    /* インラインコード */
-    .post-body code:not([class*="language-"]) {
-        background: #f1f5f9;
-        color: #e11d48;
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-size: 0.9rem;
-        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    }
-
     /* URLカード */
     .url-card {
         display: flex;
