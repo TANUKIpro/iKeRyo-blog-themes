@@ -69,6 +69,7 @@ function setupTOCPositioning() {
     const tocSidebar = document.querySelector('.toc-sidebar');
     const mainLayout = document.querySelector('.main-layout');
     const header = document.querySelector('.header');
+    const adminBar = document.getElementById('wpadminbar');
 
     if (!tocSidebar || !mainLayout) return;
 
@@ -76,6 +77,7 @@ function setupTOCPositioning() {
     function checkScreenWidth() {
         const screenWidth = window.innerWidth;
         const headerHeight = header ? header.offsetHeight : 0;
+        const adminBarHeight = adminBar ? adminBar.offsetHeight : 0;
 
         if (screenWidth <= 1400) {
             // 狭い画面：記事の上部に配置
@@ -89,7 +91,7 @@ function setupTOCPositioning() {
             if (tocSidebar !== mainLayout.lastElementChild) {
                 mainLayout.appendChild(tocSidebar);
             }
-            tocSidebar.style.top = (headerHeight + 20) + 'px';
+            tocSidebar.style.top = (headerHeight + adminBarHeight + 20) + 'px';
         }
     }
 
